@@ -15,50 +15,103 @@ fs.readFile(burstfile, function editContent (err, contents) {
 // remove the empty spans before the page marker
 $("span:empty").remove();
 
-// flag runhead paragraphs for removal
 var runheads = runhead.split("+++");
+var runfoots = runfoot.split("+++");
 
-var getTextNodesIn = function(el) {
-    return $(el).find(":not(iframe)").addBack().contents().filter(function() {
-        return this.nodeType == 3;
-    });
-};
-
-$("div").each(function () {
+// add page marker
+$("div a").each(function () {
       var text = $( this ).text();
-      var tx = text.replace(/\W/g,'');
-      var sibling = $( this ).prev().find("a").text();
-      var mypattern2 = new RegExp( "^Page(\\s+)(\\d+)$", "g");
-      var result2 = mypattern2.test(sibling);
-      if (result2 === true) {
-        for (var i = 0; i < runheads.length; i++) {
-          var item = runheads[i].replace(/\W/g,'');
-          var mypattern = new RegExp( tx, "g");
-          var result = mypattern.test(item);
-          if (result === true) {
-            $( this ).addClass("delete");
-          }
-        }
+      var mypattern = new RegExp( "^Page(\\s+)(\\d+)$", "g");
+      var result = mypattern.test(text);
+      if (result === true) {
+        $( this ).parent().addClass("pagestart")
       }
   });
 
-// flag runfoot paragraphs for removal
-$("div span").each(function () {
-      var text = $( this ).clone().children().remove().end().text();
-      var mypattern1 = new RegExp( "^(\\d+)$", "g");
-      var result1 = mypattern1.test(text);
-      var sibling = $( this ).parent().next().find("a").text();
-      var mypattern2 = new RegExp( "^Page(\\s+)(\\d+)$", "g");
-      var result2 = mypattern2.test(sibling);
-      if (result1 === true && result2 === true) {
-        $( this ).parent().addClass("delete");
+// flag runhead paragraphs for removal
+$("div.pagestart").next().each(function () {
+    var text = $( this ).text();
+    var tx = text.replace(/\W/g,'');
+    for (var i = 0; i < runheads.length; i++) {
+      var item = runheads[i].replace(/\W/g,'').replace(/folio/g,'(\\d+)');
+      var pattern = "^" + item + "$";
+      var mypattern = new RegExp( pattern, "g");
+      var result = mypattern.test(tx);
+      if (result === true) {
+        $( this ).addClass("delete");
       }
+    }
+  });
+
+// flag runfoot paragraphs for removal
+$("div.pagestart").prev().each(function () {
+    var text = $( this ).text();
+    var tx = text.replace(/\W/g,'');
+    for (var i = 0; i < runfoots.length; i++) {
+      var item = runfoots[i].replace(/\W/g,'').replace(/folio/g,'(\\d+)');
+      var pattern = "^" + item + "$";
+      var mypattern = new RegExp( pattern, "g");
+      var result = mypattern.test(tx);
+      if (result === true) {
+        $( this ).addClass("delete");
+      }
+    }
   });
 
 // remove all flagged paragraphs
 $('.delete').remove();
 
-// do content analysis
+
+// add some clear line markers
+$('span, br')
+  .contents()
+  .filter(function() {
+    return this.nodeType === 3;
+  }).wrap("<span class='line'></span>");
+
+// remove the br tags
+$('br').replaceWith(function() {
+ return $('span', this);
+});
+
+$("span.line").each(function () {
+    var text = $( this ).text();
+    var mypattern = new RegExp( "\\S", "g");
+    var result = mypattern.test(text);
+    if (result === false) {
+      $( this ).remove();
+    }
+  });
+
+var tighten = {};
+var loosen = {};
+
+// check for single lines at the top of a page
+$("div.pagestart").next().find("span.line:first-of-type").each(function () {
+    var text = $( this ).text();
+    var textlength = text.length;
+  });
+
+// check for single words hyphenated at the end of a paragraph
+// do this AFTER fixing pagebreaks
+$('div span.line:last-of-type').each(function () {
+    // see if only one word is one last line of para
+    var text = $( this ).text();
+    var mypattern = new RegExp( " ", "g");
+    var result = mypattern.test(text);
+    // see if the previous ine ends with a hyphen
+    var prevtext = $( this ).prev().text();
+    var mypattern2 = new RegExp( "-$", "g");
+    var result2 = mypattern2.test(prevtext);
+    // see if the parent element already has a tighten or loosen applied
+    var parentclass = $( this ).closest("div").attr("class");
+    var mypattern3 = new RegExp( "loosen|tighten", "g");
+    var result3 = mypattern3.test(parentclass);
+    if (result === false && result2 === true && result3 === false) {
+      $( this ).closest("div").addClass('loosen');
+      loosen.push(text);
+    }
+  });
 
   var output = $.html();
     fs.writeFile(outfile, output, function(err) {
