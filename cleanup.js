@@ -87,24 +87,6 @@ var tighten = {};
 var loosen = {};
 
 // check for single lines at the top of a page
-// if found, get line width
-// get prev para height
-// if line width is 10% and prev para height is > 3 lines, tighten that para
-// otherwise get heights of all paras on prev page
-// get last line lengths of all paras on prev page
-// don't count single paras
-// if a para exists with last line width =< 10% and height > 3 line, tighten that para
-// elsif a para exists with last line width >= 80% and height > 4 lines, loosen that para
-// elsif a para exists with last line width >= 95% and height > 3 lines, loosen that para
-// else abort
-// if not aborted:
-// if this is last page of chapter, stop npw.
-// elsif solution was to tighten:
-//   if a para exists with last line width >= 80% and height > 4 lines and NOT last para, loosen that para
-//   elsif a para exists with last line width >= 95% and height > 3 lines and NOT last para, loosen that para
-//   else abort the whole thing
-// elsif solution was to loosen:
-// on this page, find para with 
 $("div.pagestart").next().find("span.line:first-of-type").each(function () {
     var text = $( this ).text();
     var textlength = text.length;
