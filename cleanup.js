@@ -1,7 +1,6 @@
 var fs = require('fs');
 var cheerio = require('cheerio');
 var burstfile = process.argv[2];
-var srcfile = process.argv[3];
 var runhead = process.argv[4];
 var runfoot = process.argv[5];
 var outfile = "output.html";
@@ -27,6 +26,15 @@ $("div a").each(function () {
         $( this ).parent().addClass("pagestart")
       }
   });
+
+// autodetect runheads and runfeet based on first-child last-child status
+
+// if first child or last child
+// if text content = digit
+// if prev.text = digit - 1 and/or next.text = digit + 1
+// this.remove
+// if prev.text == this.text and/or next.text == this.text
+// this.remove
 
 // flag runhead paragraphs for removal
 $("div.pagestart").next().each(function () {

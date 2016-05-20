@@ -1,90 +1,48 @@
 var fs = require('fs');
 var cheerio = require('cheerio');
-var burstfile = process.argv[2];
-var srcfile = process.argv[3];
+var htmlfile = process.argv[2];
 var runhead = process.argv[4];
 var runfoot = process.argv[5];
 var outfile = "output.html";
 
 
-fs.readFile(burstfile, function editContent (err, contents) {
+fs.readFile(htmlfile, function editContent (err, contents) {
   $ = cheerio.load(contents, {
           xmlMode: true
         });
 
-// remove the empty spans before the page marker
-$("span:empty").remove();
+// tag pages
+$('.burstfile div.pagestart + div').addClass('page');
 
-var runheads = runhead.split("+++");
-var runfoots = runfoot.split("+++");
-
-// add page marker
-$("div a").each(function () {
-      var text = $( this ).text();
-      var mypattern = new RegExp( "^Page(\\s+)(\\d+)$", "g");
-      var result = mypattern.test(text);
-      if (result === true) {
-        $( this ).parent().addClass("pagestart")
-      }
-  });
-
-// flag runhead paragraphs for removal
-$("div.pagestart").next().each(function () {
-    var text = $( this ).text();
-    var tx = text.replace(/\W/g,'');
-    for (var i = 0; i < runheads.length; i++) {
-      var item = runheads[i].replace(/\W/g,'').replace(/folio/g,'(\\d+)');
-      var pattern = "^" + item + "$";
-      var mypattern = new RegExp( pattern, "g");
-      var result = mypattern.test(tx);
-      if (result === true) {
-        $( this ).addClass("delete");
+// for each line:
+$('.burstfile span.line:last-of-type').each(function () {
+// copy line text into new var, strip tags and special chars
+  var line = this;
+  var linetext = $( this ).text().replace(/\W/g,'');
+  //an array to check for unfound lines
+  var found = [];
+//  for each para of source html
+  $('.srcfile *').each(function () {
+//  copy para text into new var, strip tags and special chars
+    var para = this;
+    var paratext = $( this ).text().replace(/\W/g,'');
+    var search = linetext + "$";
+    var mypattern = new RegExp( search, "g");
+    var result = mypattern.test(paratext);
+//  if para.stripped index of line.stripped:
+    if ( paratext.indexOf(linetext) >= 0 ) {
+      found.push(linetext);
+      if ( para.tagName == "H1" ) {
+        $(line).addClass("chaptitle");
+      } else if ( paratext.indexOf(linetext) && result === true ) {
+        $(line).addClass("last");
       }
     }
   });
-
-// flag runfoot paragraphs for removal
-$("div.pagestart").prev().each(function () {
-    var text = $( this ).text();
-    var tx = text.replace(/\W/g,'');
-    for (var i = 0; i < runfoots.length; i++) {
-      var item = runfoots[i].replace(/\W/g,'').replace(/folio/g,'(\\d+)');
-      var pattern = "^" + item + "$";
-      var mypattern = new RegExp( pattern, "g");
-      var result = mypattern.test(tx);
-      if (result === true) {
-        $( this ).addClass("delete");
-      }
+  if ( jQuery.inArray( linetext, found ) == -1 ) {
+      this.remove();
     }
-  });
-
-// remove all flagged paragraphs
-$('.delete').remove();
-
-
-// add some clear line markers
-$('span, br')
-  .contents()
-  .filter(function() {
-    return this.nodeType === 3;
-  }).wrap("<span class='line'></span>");
-
-// remove the br tags
-$('br').replaceWith(function() {
- return $('span', this);
 });
-
-$("span.line").each(function () {
-    var text = $( this ).text();
-    var mypattern = new RegExp( "\\S", "g");
-    var result = mypattern.test(text);
-    if (result === false) {
-      $( this ).remove();
-    }
-  });
-
-var tighten = {};
-var loosen = {};
 
 // check for single lines at the top of a page
 // if found, get line width
