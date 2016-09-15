@@ -20,6 +20,7 @@ There's a Python library called PDFMiner that can extract this data from a PDF, 
 Basic process:
 
 * Extract text from PDF, preserving line and page breaks
+* Strip excess information (running headers and footers, etc.)
 * Analyze breaks
 * Tag source HTML with new break information (essentially manually page-breaking the book). In order to do thisand preserve balanced pages, we can set up 3 allowable line count values (the number of lines allowed per page). The first pagination will always paginate using the middle line count; when re-paginating, move lines to the next or previous page and shift to the shorter or longer line count as needed.
 
