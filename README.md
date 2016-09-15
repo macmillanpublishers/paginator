@@ -2,12 +2,11 @@
 
 Prince has it's own pagination rules and hierarchy, influenced by the CSS that we supply. These rules don't quite meet Macmillan's quality standards. We need to repaginate to enforce the following:
 
-* Last line of multi-line paragraph at top of page: avoid (single line ending page = OK)
-* Acceptable (if necessary) if line is at least 45 characters, but not preferred.
-* Last page of chapter should have ideally 4 lines or more. 3 lines is acceptable.
 * Facing pages of a spread should always have the same number of lines
+* Last line of multi-line paragraph at top of page: avoid (single line ending page = OK). Acceptable (if necessary) if line is at least 45 characters, but not preferred.
+* Last page of chapter should have ideally 4 lines or more. 3 lines is acceptable.
 * Hyphenation across pages = OK if at least 4 characters after hyphen; otherwise, rebreak the line by tightening or loosening the character spacing.
-* OK to hyphenate the last word of a paragraph if at least 4 characters after the hyphen (not including punctuation). More characters is better, obviously. If less than 4 characters, rebreak the line.
+* OK to hyphenate the last word of a paragraph if at least 4 characters after the hyphen (not including punctuation). More characters is better. If less than 4 characters, rebreak the line by tightening/loosening.
 * Last line of paragraphs should not be shorter than 4 characters (including punctuation). Ex: if the last line of a paragraph ends with /it./ or /I."/, tighten or loosen to rebreak the line. 
 * If a spacebreak is that last paragraph on a page, it should get an "ornament" class applied
 
@@ -19,6 +18,7 @@ There's a Python library called PDFMiner that can extract this data from a PDF, 
 
 Basic process:
 
+* Input: converted PDF, source HTML file
 * Extract text from PDF, preserving line and page breaks
 * Strip excess information (running headers and footers, etc.)
 * Analyze breaks
