@@ -5,7 +5,7 @@ Prince has it's own pagination rules and hierarchy, influenced by the CSS that w
 * Facing pages of a spread should always have the same number of lines
 * Last line of multi-line paragraph at top of page: avoid (single line ending page = OK). Acceptable (if necessary) if line is at least 45 characters, but not preferred.
 * Last page of chapter should have ideally 4 lines or more. 3 lines is acceptable.
-* Hyphenation across pages = OK if at least 4 characters after hyphen; otherwise, rebreak the line by tightening or loosening the character spacing.
+* Hyphenation across pages = OK if at least 4 characters after hyphen; otherwise, rebreak the line by tightening or loosening the character spacing (add a "tighten" or "loosen" class to a new span or to the whole paragraph, and this class would be defined in the CSS to increase or decrease the letter-spacing).
 * OK to hyphenate the last word of a paragraph if at least 4 characters after the hyphen (not including punctuation). More characters is better. If less than 4 characters, rebreak the line by tightening/loosening.
 * Last line of paragraphs should not be shorter than 4 characters (including punctuation). Ex: if the last line of a paragraph ends with /it./ or /I."/, tighten or loosen to rebreak the line. 
 * If a spacebreak is that last paragraph on a page, it should get an "ornament" class applied
