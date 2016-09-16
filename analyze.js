@@ -11,12 +11,16 @@ fs.readFile(htmlfile, function editContent (err, contents) {
           xmlMode: true
         });
 
+// THIS FILE IS UNTESTED AND THE MOST INCOMPLETE
+
 // What about space breaks? Extracts? Basically every non-text para. Can we get space info from the style attr? Can we get it from CSS?
 
-// MOST IMPORTANT:
+// TO DO:
 // Mark chapter breaks
-// Mark every line that is followed by a spacebreak AND what kind
-// Mark every line that is preceded by a spacebreak AND what kind
+// Mark every line that is followed by an abnormally-margined element
+// Mark every line that is preceded by an abnormally-margined element
+
+// LINE BREAK ADJUSTMENTS:
 // last line of para is a broken word:
 // IF broken word < 4chars, add class TIGHTEN to para,
 //// THEN pull a line from prev page to end of this page until end of chapter
@@ -24,9 +28,8 @@ fs.readFile(htmlfile, function editContent (err, contents) {
 
 $('.burstfile span.line:last-child').addClass("endofpage");
 
-// IF any of the lines getting moved have a spacebreak in between them, that's going to fuck things up
-
-// widowed line at top of page:
+// PAGE BREAK ADJUSTMENTS:
+// Fix widowed line at top of page:
 // get max allowed line count (just get the count of the second page in the first chapter that has more than two pages)
 // note which lines end pages
 // tag last lines of paragraphs from SRCFILE into BURSTFILE
@@ -63,6 +66,7 @@ $('.burstfile span.line:last-child').addClass("endofpage");
 //// IF N >= 4, grab N lines from this and move to new page
 //// ELSEIF N < 4, grab 4 lines from this and move to new page
 
+// IF any of the lines getting moved have a spacebreak or other non-standard element in between them, that's going to fuck things up. How to account for those?
 
 // for each line:
 $('.burstfile span.line').each(function () {
@@ -96,30 +100,12 @@ $('.burstfile span.line').each(function () {
     }
   });
   // remove any unmatched lines.
-  // This will clear out folio text as well as running elements that aren't a direct match to a source para.
+  // This will hopefully clear out folio text as well as running elements that aren't a direct match to a source para...?
   if ( jQuery.inArray( linetext, found ) == -1 ) {
       this.remove();
     }
 });
 
-// check for single lines at the top of a page
-// if found, get line width
-// get prev para height
-// if line width is 10% and prev para height is > 3 lines, tighten that para
-// otherwise get heights of all paras on prev page
-// get last line lengths of all paras on prev page
-// don't count single paras
-// if a para exists with last line width =< 10% and height > 3 line, tighten that para
-// elsif a para exists with last line width >= 80% and height > 4 lines, loosen that para
-// elsif a para exists with last line width >= 95% and height > 3 lines, loosen that para
-// else abort
-// if not aborted:
-// if this is last page of chapter, stop npw.
-// elsif solution was to tighten:
-//   if a para exists with last line width >= 80% and height > 4 lines and NOT last para, loosen that para
-//   elsif a para exists with last line width >= 95% and height > 3 lines and NOT last para, loosen that para
-//   else abort the whole thing
-// elsif solution was to loosen:
 // on this page, find para with 
 $("div.pagestart").next().find("span.line:first-of-type").each(function () {
     var text = $( this ).text();
@@ -147,6 +133,7 @@ $('div span.line:last-of-type').each(function () {
     }
   });
 
+// write new output to file
   var output = $.html();
     fs.writeFile(outfile, output, function(err) {
       if(err) {
